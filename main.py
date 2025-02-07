@@ -1,7 +1,7 @@
 import json
 
 
-with open('data/ResightsApS.json', 'r') as f:
+with open('data/CasaAS.json', 'r') as f:
     network = json.load(f)
 
     
@@ -11,62 +11,33 @@ with open('data/ResightsApS.json', 'r') as f:
 
 
 # --- MODEL ---
-
-class Company:
-    def __init__(self, id, name):
-        self.id = id
-        self.name = name
-        self.ownerships = []
-    
-    def serialize(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-        }
-
-class CompanyMap:
-    companies = dict()
-    distance_to_focus_point = dict()
-
-    def has_company(self, id):
-        return id in self.companies.keys()
-    
-    def add_company(self, company):
-        self.companies[company.id] = company
-    
-    def add_source_and_target(self, ownership_descriptor):
-        if (not self.has_company(str(ownership_descriptor['source']))):
-            self.add_company(Company(ownership_descriptor['source'], ownership_descriptor['source_name']))
-        if (not self.has_company(str(ownership_descriptor['target']))):
-            self.add_company(Company(ownership_descriptor['target'], ownership_descriptor['target_name']))
-    
-    def serialize(self):
-        return dict([(k, v.serialize()) for k, v in self.companies.items()])
-
-
-class Ownership:
-    def __init__(self, id, source, target, ownership_string):
+class NetworkArrow:
+    def __init__(self, id, source, target, ownership_share):
         self.id = id
         self.source = source
         self.target = target
         
-        self.direct_ownership_lower = self.parse_ownership(ownership_string)[0]
-        self.direct_ownership_upper = self.parse_ownership(ownership_string)[1]
+        self.direct_ownership_lower = self.parse_share(ownership_share)[0] / 100
+        self.direct_ownership_upper = self.parse_share(ownership_share)[1] / 100
     
 
     def direct_ownership_average(self):
         return (self.direct_ownership_lower + self.direct_ownership_upper) / 2
 
 
-    # Expected shape of ownership string i "dd-dd%" OR "dd%"
-    def parse_ownership(_self, ownership):
-        parts = ownership.split('-')
+    # Expected shape of 'share' string is "dd-dd%" OR "dd%"
+    def parse_share(_self, share):
+        less_than_split = share.split('<')
+        if (len(less_than_split) > 1):
+            return [0, float(remove_percentage_sign(less_than_split[1]))]
 
-        start = float(remove_percentage_sign(parts[0]))
-        if len(parts) == 1:
+        interval_ends = share.split('-')
+
+        start = float(remove_percentage_sign(interval_ends[0]))
+        if len(interval_ends) == 1:
             return [start, start]
-        elif len(parts) == 2:
-            return [start, float(remove_percentage_sign(parts[1]))]
+        elif len(interval_ends) == 2:
+            return [start, float(remove_percentage_sign(interval_ends[1]))]
     
 
     def serialize(self):
@@ -79,71 +50,99 @@ class Ownership:
         }
 
 
-class OwnershipMap:
-    ownerships = dict()
-    ownership_to = dict()
-    ownership_from = dict()
-
-    def has_ownership(self, id):
-        return id in self.ownerships.keys()
-    
+class NetworkModel:
+    id_to_network_arrows_map = dict()
+    arrows_into_id_map = dict()
+    arrows_out_of_id_map = dict()
 
 
-    def add_ownership(self, ownership_descriptor):
-        if (not self.has_ownership(str(ownership_descriptor['id']))):
-            ownership_model = Ownership(
-                ownership_descriptor['id'], 
-                ownership_descriptor['source'], 
-                ownership_descriptor['target'], 
-                ownership_descriptor['share']
+    def contains_network_arrow_with_id(self, id):
+        return id in self.id_to_network_arrows_map.keys()
+
+
+    def add_network_relationships(self, network_arrow_descriptor):
+        id = network_arrow_descriptor['id']
+
+        if (not self.contains_network_arrow_with_id(id)):
+
+            network_arrow_model = NetworkArrow(
+                network_arrow_descriptor['id'], 
+                network_arrow_descriptor['source'], 
+                network_arrow_descriptor['target'], 
+                network_arrow_descriptor['share'],
             )
-            self.ownerships[ownership_descriptor['id']] = ownership_model
-            self.add_ownership_to(ownership_model)
-            self.add_ownership_from(ownership_model)
-    
-    def add_ownership_to(self, ownership):
-        identifier = ownership.target
 
-        if identifier not in self.ownership_to:
-            self.ownership_to[identifier] = [ownership]
-        self.ownership_to[identifier].append(ownership)
+            self.add_network_arrow(network_arrow_model)
+            self.add_network_arrow_target_relation(network_arrow_model)
+            self.add_network_arrow_source_relation(network_arrow_model)
 
-    def add_ownership_from(self, ownership):
+
+    def add_network_arrow(self, network_arrow_model):
+        self.id_to_network_arrows_map[network_arrow_model.id] = network_arrow_model
+
+
+    def add_network_arrow_target_relation(self, network_arrow_model):
+        target_id = network_arrow_model.target
+
+        if target_id not in self.arrows_into_id_map:
+            self.arrows_into_id_map[target_id] = [network_arrow_model]
+        else :
+            self.arrows_into_id_map[target_id].append(network_arrow_model)
+
+
+    def add_network_arrow_source_relation(self, ownership):
         identifier = ownership.source
 
-        if identifier not in self.ownership_from:
-            self.ownership_to[identifier] = [ownership]
-        self.ownership_to[identifier].append(ownership)
+        if identifier not in self.arrows_out_of_id_map:
+            self.arrows_out_of_id_map[identifier] = [ownership]
+        else:
+            self.arrows_out_of_id_map[identifier].append(ownership)
+
+    def get_arrows_into(self, id):
+        if id in self.arrows_into_id_map:
+            return self.arrows_into_id_map[id]
+        return []
+
+    def get_arrows_out_of(self, id):
+        if id in self.arrows_out_of_id_map:
+            return self.arrows_out_of_id_map[id]
+        return []
 
     def serialize(self):
-        return dict([(k, v.serialize()) for k, v in self.ownerships.items()])
+        return dict([(k, v.serialize()) for k, v in self.id_to_network_arrows_map.items()])
     
 
-class OwnershipPath:
+class NetworkPath:
     path = []
     
     lower_weight = 1
     upper_weight = 1
+    def average_weight(self):
+        return (self.lower_weight + self.upper_weight) / 2
+
+    closed = False
     
     def __init__(self,path, lower_weight = 1, upper_weight = 1):
         self.path = path
+        self.lower_weight = lower_weight
+        self.upper_weight = upper_weight
 
     @classmethod
     def start(cls, ownership):
-        return cls([ownership.source, ownership.target])
+        return cls([ownership.source, ownership.target], ownership.direct_ownership_lower, ownership.direct_ownership_upper)
     
-    def first(self):
+    def from_node(self):
         return self.path[0]
     
-    def last(self):
+    def to_node(self):
         return self.path[-1]
 
     def close_as_loop(self):
         self.lower_weight = 0
         self.upper_weight = 0
 
-    def append_ownership(self, ownership):
-        if self.last() != ownership.source:
+    def append_arrow(self, ownership):
+        if self.to_node() != ownership.source:
             raise ValueError('Ownership does not match source company')
         if ownership.target in self.path:
             self.close_as_loop()
@@ -151,18 +150,17 @@ class OwnershipPath:
         if self.is_closed():
             return
 
-        new_path = self.path + [ownership]
+        new_path = self.path + [ownership.target]
         
-        return OwnershipPath(
+        return NetworkPath(
             new_path, 
             self.lower_weight * ownership.direct_ownership_lower, 
             self.upper_weight * ownership.direct_ownership_upper
         )
     
     
-    def prepend_ownership(self, ownership):
-        if self.first() != ownership.target:
-            print(self.path, ownership.serialize())
+    def prepend_arrow(self, ownership):
+        if self.from_node() != ownership.target:
             raise ValueError('Ownership does not match target company')
         if ownership.source in self.path:
             self.close_as_loop()
@@ -170,15 +168,30 @@ class OwnershipPath:
         if self.is_closed():
             return
 
-        new_path = [ownership] + self.path
-        return OwnershipPath(
+        new_path = [ownership.source] + self.path
+        return NetworkPath(
             new_path, 
             self.lower_weight * ownership.direct_ownership_lower, 
             self.upper_weight * ownership.direct_ownership_upper
         )
     
+    def close(self):
+        self.closed = True
+    
     def is_closed(self):
+        return self.is_loop() or self.closed
+    
+    def is_loop(self):
         return self.lower_weight == 0 and self.upper_weight == 0
+
+    def serialize(self):
+        return {
+            'source': self.from_node(),
+            'target': self.to_node(),
+            'real_lower_share': self.lower_weight,
+            'real_average_share': self.average_weight(),
+            'real_upper_share': self.upper_weight
+        }
 
 
 # --- HELPERS ---
@@ -187,40 +200,51 @@ def remove_percentage_sign(string):
 
 
 # --- PROCESSING ---
-company_map = CompanyMap()
-ownership_map = OwnershipMap()
+#company_map = CompanyMap()
+network_model = NetworkModel()
+focus_company_id = None
 
 # Load companies and direct ownerships
 for company_ownership in network:
-     company_map.add_source_and_target(company_ownership)
-     ownership_map.add_ownership(company_ownership)
+     #company_map.add_source_and_target(company_ownership)
+     network_model.add_network_relationships(company_ownership) 
+
+     if (company_ownership['source_depth'] == 0 and focus_company_id is None):
+         focus_company_id = company_ownership['source']
+     elif (company_ownership['target_depth'] == 0 and focus_company_id is None):
+         focus_company_id = company_ownership['target']
 
 
-owned_by = [OwnershipPath.start(ownership) for ownership in ownership_map.ownership_to[41527080]]
+owned_by = [NetworkPath.start(ownership) for ownership in network_model.get_arrows_into(focus_company_id)]
 
 active_paths = [path for path in owned_by if not path.is_closed()]
-inactive_paths = [path for path in owned_by if path.is_closed()]
+inactive_paths = [path for path in owned_by if (path.is_closed() and not path.is_loop())]
 
 def travel_backwards(active_paths, inactive_paths):
     if len(active_paths) == 0:
         return [active_paths, inactive_paths]
 
-    new_paths = []
+    new_inactive_paths = inactive_paths.copy()
+    new_active_paths = []
     for active_path in active_paths:
-        for ownership in ownership_map.ownership_to[active_path.first()]:
-            new_paths.append(active_path.prepend_ownership(ownership))
+        if not active_path.is_loop():
+            new_inactive_paths.append(active_path)
 
-    new_active_paths = [path for path in new_paths if not path.is_closed()]
-    new_inactive_paths = [path for path in new_paths if path.is_closed()]
+        arrows_mapping_in = network_model.get_arrows_into(active_path.from_node())
+        if (len(arrows_mapping_in) != 0):
+            for arrow in arrows_mapping_in:
+                extended_path = active_path.prepend_arrow(arrow)
+                if extended_path is not None and not extended_path.is_loop():
+                    new_active_paths.append(extended_path)
 
-    return travel_backwards(new_active_paths, inactive_paths + new_inactive_paths)
+    return travel_backwards(new_active_paths, new_inactive_paths)
 
 empty, final_structure = travel_backwards(active_paths, inactive_paths)
 
 # --- WRITE TO FILE(S)
 
 with open('isOwnedBy.json', 'w', encoding='utf-8') as f:
-    json.dump([ownership.path for ownership in final_structure], f, ensure_ascii=False, indent=4)
+    json.dump([ownership.serialize() for ownership in final_structure], f, ensure_ascii=False, indent=4)
 
 #with open('ownership.json', 'w', encoding='utf-8') as f:
 #    json.dump(ownership_map.serialize(), f, ensure_ascii=False, indent=4)

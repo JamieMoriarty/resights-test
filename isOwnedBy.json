@@ -1,22 +1,352 @@
 [
-    [
-        21188840,
-        41527080
-    ],
-    [
-        21188840,
-        41527080
-    ],
-    [
-        30564936,
-        41527080
-    ],
-    [
-        40072772,
-        41527080
-    ],
-    [
-        41519843,
-        41527080
-    ]
+    {
+        "source": 36427426,
+        "target": 29205272,
+        "real_lower_share": 1.0,
+        "real_average_share": 1.0,
+        "real_upper_share": 1.0
+    },
+    {
+        "source": 37577723,
+        "target": 29205272,
+        "real_lower_share": 1.0,
+        "real_average_share": 1.0,
+        "real_upper_share": 1.0
+    },
+    {
+        "source": 37577936,
+        "target": 29205272,
+        "real_lower_share": 1.0,
+        "real_average_share": 1.0,
+        "real_upper_share": 1.0
+    },
+    {
+        "source": 36715138,
+        "target": 29205272,
+        "real_lower_share": 0.5,
+        "real_average_share": 0.585,
+        "real_upper_share": 0.67
+    },
+    {
+        "source": 37699829,
+        "target": 29205272,
+        "real_lower_share": 0.33,
+        "real_average_share": 0.41500000000000004,
+        "real_upper_share": 0.5
+    },
+    {
+        "source": 38235036,
+        "target": 29205272,
+        "real_lower_share": 0,
+        "real_average_share": 0.0,
+        "real_upper_share": 0
+    },
+    {
+        "source": 34885079,
+        "target": 29205272,
+        "real_lower_share": 0.45,
+        "real_average_share": 0.56,
+        "real_upper_share": 0.67
+    },
+    {
+        "source": 21188840,
+        "target": 29205272,
+        "real_lower_share": 0.165,
+        "real_average_share": 0.25,
+        "real_upper_share": 0.335
+    },
+    {
+        "source": 35379606,
+        "target": 29205272,
+        "real_lower_share": 0.0825,
+        "real_average_share": 0.12375,
+        "real_upper_share": 0.165
+    },
+    {
+        "source": 38165968,
+        "target": 29205272,
+        "real_lower_share": 0.0825,
+        "real_average_share": 0.12375,
+        "real_upper_share": 0.165
+    },
+    {
+        "source": 4000579353,
+        "target": 29205272,
+        "real_lower_share": 0.0075,
+        "real_average_share": 0.013750000000000002,
+        "real_upper_share": 0.020000000000000004
+    },
+    {
+        "source": 28521197,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.005000000000000001,
+        "real_upper_share": 0.010000000000000002
+    },
+    {
+        "source": 31874122,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.005000000000000001,
+        "real_upper_share": 0.010000000000000002
+    },
+    {
+        "source": 29834296,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.005000000000000001,
+        "real_upper_share": 0.010000000000000002
+    },
+    {
+        "source": 24256146,
+        "target": 29205272,
+        "real_lower_share": 0.022500000000000003,
+        "real_average_share": 0.044750000000000005,
+        "real_upper_share": 0.067
+    },
+    {
+        "source": 33768532,
+        "target": 29205272,
+        "real_lower_share": 0.09000000000000001,
+        "real_average_share": 0.12875,
+        "real_upper_share": 0.1675
+    },
+    {
+        "source": 4006573647,
+        "target": 29205272,
+        "real_lower_share": 0.045000000000000005,
+        "real_average_share": 0.07275000000000001,
+        "real_upper_share": 0.1005
+    },
+    {
+        "source": 4008157086,
+        "target": 29205272,
+        "real_lower_share": 0.022500000000000003,
+        "real_average_share": 0.044750000000000005,
+        "real_upper_share": 0.067
+    },
+    {
+        "source": 4008157085,
+        "target": 29205272,
+        "real_lower_share": 0.022500000000000003,
+        "real_average_share": 0.044750000000000005,
+        "real_upper_share": 0.067
+    },
+    {
+        "source": 4000669260,
+        "target": 29205272,
+        "real_lower_share": 0.165,
+        "real_average_share": 0.25,
+        "real_upper_share": 0.335
+    },
+    {
+        "source": 4004056952,
+        "target": 29205272,
+        "real_lower_share": 0.0825,
+        "real_average_share": 0.12375,
+        "real_upper_share": 0.165
+    },
+    {
+        "source": 4004127097,
+        "target": 29205272,
+        "real_lower_share": 0.0825,
+        "real_average_share": 0.12375,
+        "real_upper_share": 0.165
+    },
+    {
+        "source": 4004040714,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.005000000000000001,
+        "real_upper_share": 0.010000000000000002
+    },
+    {
+        "source": 4004123467,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.005000000000000001,
+        "real_upper_share": 0.010000000000000002
+    },
+    {
+        "source": 4003834189,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.005000000000000001,
+        "real_upper_share": 0.010000000000000002
+    },
+    {
+        "source": 25020634,
+        "target": 29205272,
+        "real_lower_share": 0.022500000000000003,
+        "real_average_share": 0.044750000000000005,
+        "real_upper_share": 0.067
+    },
+    {
+        "source": 24260577,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.0041875,
+        "real_upper_share": 0.008375
+    },
+    {
+        "source": 16294675,
+        "target": 29205272,
+        "real_lower_share": 0.06030000000000001,
+        "real_average_share": 0.10552500000000002,
+        "real_upper_share": 0.15075000000000002
+    },
+    {
+        "source": 55834911,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.0041875,
+        "real_upper_share": 0.008375
+    },
+    {
+        "source": 13594376,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.0041875,
+        "real_upper_share": 0.008375
+    },
+    {
+        "source": 24256146,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.0041875,
+        "real_upper_share": 0.008375
+    },
+    {
+        "source": 29448477,
+        "target": 29205272,
+        "real_lower_share": 0.0045000000000000005,
+        "real_average_share": 0.010625,
+        "real_upper_share": 0.01675
+    },
+    {
+        "source": 61126228,
+        "target": 29205272,
+        "real_lower_share": 0.022500000000000003,
+        "real_average_share": 0.044750000000000005,
+        "real_upper_share": 0.067
+    },
+    {
+        "source": 36741422,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.0041875,
+        "real_upper_share": 0.008375
+    },
+    {
+        "source": 62547413,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.0008375000000000001,
+        "real_upper_share": 0.0016750000000000003
+    },
+    {
+        "source": 31429528,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.001381875,
+        "real_upper_share": 0.00276375
+    },
+    {
+        "source": 31407117,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.00041875000000000007,
+        "real_upper_share": 0.0008375000000000001
+    },
+    {
+        "source": 30931521,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.0008375000000000001,
+        "real_upper_share": 0.0016750000000000003
+    },
+    {
+        "source": 22438018,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.0041875,
+        "real_upper_share": 0.008375
+    },
+    {
+        "source": 25020634,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.0041875,
+        "real_upper_share": 0.008375
+    },
+    {
+        "source": 43405810,
+        "target": 29205272,
+        "real_lower_share": 0.0045000000000000005,
+        "real_average_share": 0.010625,
+        "real_upper_share": 0.01675
+    },
+    {
+        "source": 36533846,
+        "target": 29205272,
+        "real_lower_share": 0.0045000000000000005,
+        "real_average_share": 0.010625,
+        "real_upper_share": 0.01675
+    },
+    {
+        "source": 11616488,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.00209375,
+        "real_upper_share": 0.0041875
+    },
+    {
+        "source": 16834017,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.000628125,
+        "real_upper_share": 0.00125625
+    },
+    {
+        "source": 61126228,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.0041875,
+        "real_upper_share": 0.008375
+    },
+    {
+        "source": 25679288,
+        "target": 29205272,
+        "real_lower_share": 0.0045000000000000005,
+        "real_average_share": 0.010625,
+        "real_upper_share": 0.01675
+    },
+    {
+        "source": 36533846,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.001046875,
+        "real_upper_share": 0.00209375
+    },
+    {
+        "source": 11666779,
+        "target": 29205272,
+        "real_lower_share": 0.0045000000000000005,
+        "real_average_share": 0.010625,
+        "real_upper_share": 0.01675
+    },
+    {
+        "source": 25679288,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.001046875,
+        "real_upper_share": 0.00209375
+    },
+    {
+        "source": 11666779,
+        "target": 29205272,
+        "real_lower_share": 0.0,
+        "real_average_share": 0.001046875,
+        "real_upper_share": 0.00209375
+    }
 ]
