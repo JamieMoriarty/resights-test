@@ -9,6 +9,16 @@ For reference below, say the company in focus is X.
 
 # Running & output
 
-Data inputs for the script are JSON files matching the format of the provided examples. To input them, change line 4 in the script to match the OS path for the file.
+## Running
+
+Data inputs for the script are JSON files matching the format of the provided examples. To input them, change line 4 in the script to match the OS path for the file. To run the script, execute the command
+
+```
+python3 main.py
+```
+
+from the root of the repo.
+
+## Output
 
 The script outputs 2 files (in the output folder): isOwnedBy.json and owned.json. These represents the companies that the company in focus **is owned by**, and the companies which the company in focus **owns**, respectively.
