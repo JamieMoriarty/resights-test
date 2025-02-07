@@ -1,0 +1,58 @@
+{
+    "21188840_41527080": {
+        "source": 21188840,
+        "target": 41527080,
+        "ownership_lower": 10.0,
+        "ownership_average": 12.5,
+        "ownership_upper": 15.0
+    },
+    "4000669260_21188840": {
+        "source": 4000669260,
+        "target": 21188840,
+        "ownership_lower": 100.0,
+        "ownership_average": 100.0,
+        "ownership_upper": 100.0
+    },
+    "30564936_41527080": {
+        "source": 30564936,
+        "target": 41527080,
+        "ownership_lower": 5.0,
+        "ownership_average": 7.5,
+        "ownership_upper": 10.0
+    },
+    "4004054306_30564936": {
+        "source": 4004054306,
+        "target": 30564936,
+        "ownership_lower": 100.0,
+        "ownership_average": 100.0,
+        "ownership_upper": 100.0
+    },
+    "40072772_41527080": {
+        "source": 40072772,
+        "target": 41527080,
+        "ownership_lower": 33.0,
+        "ownership_average": 41.5,
+        "ownership_upper": 50.0
+    },
+    "4000734180_40072772": {
+        "source": 4000734180,
+        "target": 40072772,
+        "ownership_lower": 100.0,
+        "ownership_average": 100.0,
+        "ownership_upper": 100.0
+    },
+    "41519843_41527080": {
+        "source": 41519843,
+        "target": 41527080,
+        "ownership_lower": 33.0,
+        "ownership_average": 41.5,
+        "ownership_upper": 50.0
+    },
+    "4008511070_41519843": {
+        "source": 4008511070,
+        "target": 41519843,
+        "ownership_lower": 100.0,
+        "ownership_average": 100.0,
+        "ownership_upper": 100.0
+    }
+}
