@@ -125,26 +125,60 @@ class OwnershipPath:
     lower_weight = 1
     upper_weight = 1
     
-    def __init__(self,ownership):
-        self.path = [ownership.source, ownership.target]
+    def __init__(self,path, lower_weight = 1, upper_weight = 1):
+        self.path = path
 
-    def last_company(self):
+    @classmethod
+    def start(cls, ownership):
+        return cls([ownership.source, ownership.target])
+    
+    def first(self):
+        return self.path[0]
+    
+    def last(self):
         return self.path[-1]
 
+    def close_as_loop(self):
+        self.lower_weight = 0
+        self.upper_weight = 0
+
     def append_ownership(self, ownership):
-        if self.path[-1] != ownership.source:
+        if self.last() != ownership.source:
             raise ValueError('Ownership does not match source company')
         if ownership.target in self.path:
-            self.lower_weight = 0
-            self.upper_weight = 0
+            self.close_as_loop()
             return
-        if self.upper_weight <= 0:
+        if self.is_closed():
             return
 
-        self.path.append(ownership)
+        new_path = self.path + [ownership]
+        
+        return OwnershipPath(
+            new_path, 
+            self.lower_weight * ownership.direct_ownership_lower, 
+            self.upper_weight * ownership.direct_ownership_upper
+        )
+    
+    
+    def prepend_ownership(self, ownership):
+        if self.first() != ownership.target:
+            print(self.path, ownership.serialize())
+            raise ValueError('Ownership does not match target company')
+        if ownership.source in self.path:
+            self.close_as_loop()
+            return
+        if self.is_closed():
+            return
 
-        self.lower_weight *= ownership.direct_ownership_lower
-        self.upper_weight *= ownership.direct_ownership_upper
+        new_path = [ownership] + self.path
+        return OwnershipPath(
+            new_path, 
+            self.lower_weight * ownership.direct_ownership_lower, 
+            self.upper_weight * ownership.direct_ownership_upper
+        )
+    
+    def is_closed(self):
+        return self.lower_weight == 0 and self.upper_weight == 0
 
 
 # --- HELPERS ---
@@ -162,10 +196,31 @@ for company_ownership in network:
      ownership_map.add_ownership(company_ownership)
 
 
-owned_by = [OwnershipPath(ownership) for ownership in ownership_map.ownership_to[41527080]]
+owned_by = [OwnershipPath.start(ownership) for ownership in ownership_map.ownership_to[41527080]]
+
+active_paths = [path for path in owned_by if not path.is_closed()]
+inactive_paths = [path for path in owned_by if path.is_closed()]
+
+def travel_backwards(active_paths, inactive_paths):
+    if len(active_paths) == 0:
+        return [active_paths, inactive_paths]
+
+    new_paths = []
+    for active_path in active_paths:
+        for ownership in ownership_map.ownership_to[active_path.first()]:
+            new_paths.append(active_path.prepend_ownership(ownership))
+
+    new_active_paths = [path for path in new_paths if not path.is_closed()]
+    new_inactive_paths = [path for path in new_paths if path.is_closed()]
+
+    return travel_backwards(new_active_paths, inactive_paths + new_inactive_paths)
+
+empty, final_structure = travel_backwards(active_paths, inactive_paths)
+
+# --- WRITE TO FILE(S)
 
 with open('isOwnedBy.json', 'w', encoding='utf-8') as f:
-    json.dump([ownership.path for ownership in owned_by], f, ensure_ascii=False, indent=4)
+    json.dump([ownership.path for ownership in final_structure], f, ensure_ascii=False, indent=4)
 
 #with open('ownership.json', 'w', encoding='utf-8') as f:
 #    json.dump(ownership_map.serialize(), f, ensure_ascii=False, indent=4)
