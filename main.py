@@ -81,21 +81,70 @@ class Ownership:
 
 class OwnershipMap:
     ownerships = dict()
+    ownership_to = dict()
+    ownership_from = dict()
 
     def has_ownership(self, id):
         return id in self.ownerships.keys()
+    
+
 
     def add_ownership(self, ownership_descriptor):
         if (not self.has_ownership(str(ownership_descriptor['id']))):
-            self.ownerships[ownership_descriptor['id']] = Ownership(
+            ownership_model = Ownership(
                 ownership_descriptor['id'], 
                 ownership_descriptor['source'], 
                 ownership_descriptor['target'], 
                 ownership_descriptor['share']
             )
+            self.ownerships[ownership_descriptor['id']] = ownership_model
+            self.add_ownership_to(ownership_model)
+            self.add_ownership_from(ownership_model)
+    
+    def add_ownership_to(self, ownership):
+        identifier = ownership.target
+
+        if identifier not in self.ownership_to:
+            self.ownership_to[identifier] = [ownership]
+        self.ownership_to[identifier].append(ownership)
+
+    def add_ownership_from(self, ownership):
+        identifier = ownership.source
+
+        if identifier not in self.ownership_from:
+            self.ownership_to[identifier] = [ownership]
+        self.ownership_to[identifier].append(ownership)
 
     def serialize(self):
         return dict([(k, v.serialize()) for k, v in self.ownerships.items()])
+    
+
+class OwnershipPath:
+    path = []
+    
+    lower_weight = 1
+    upper_weight = 1
+    
+    def __init__(self,ownership):
+        self.path = [ownership.source, ownership.target]
+
+    def last_company(self):
+        return self.path[-1]
+
+    def append_ownership(self, ownership):
+        if self.path[-1] != ownership.source:
+            raise ValueError('Ownership does not match source company')
+        if ownership.target in self.path:
+            self.lower_weight = 0
+            self.upper_weight = 0
+            return
+        if self.upper_weight <= 0:
+            return
+
+        self.path.append(ownership)
+
+        self.lower_weight *= ownership.direct_ownership_lower
+        self.upper_weight *= ownership.direct_ownership_upper
 
 
 # --- HELPERS ---
@@ -113,11 +162,13 @@ for company_ownership in network:
      ownership_map.add_ownership(company_ownership)
 
 
-with open('output.json', 'w', encoding='utf-8') as f:
-    json.dump(company_map.serialize(), f, ensure_ascii=False, indent=4)
+owned_by = [OwnershipPath(ownership) for ownership in ownership_map.ownership_to[41527080]]
 
-with open('ownership.json', 'w', encoding='utf-8') as f:
-    json.dump(ownership_map.serialize(), f, ensure_ascii=False, indent=4)
+with open('isOwnedBy.json', 'w', encoding='utf-8') as f:
+    json.dump([ownership.path for ownership in owned_by], f, ensure_ascii=False, indent=4)
+
+#with open('ownership.json', 'w', encoding='utf-8') as f:
+#    json.dump(ownership_map.serialize(), f, ensure_ascii=False, indent=4)
 
 
 
