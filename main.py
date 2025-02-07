@@ -17,27 +17,12 @@ class NetworkArrow:
         self.source = source
         self.target = target
         
-        self.direct_ownership_lower = self.parse_share(ownership_share)[0] / 100
-        self.direct_ownership_upper = self.parse_share(ownership_share)[1] / 100
+        self.direct_ownership_lower = parse_share(ownership_share)[0] / 100
+        self.direct_ownership_upper = parse_share(ownership_share)[1] / 100
     
 
     def direct_ownership_average(self):
         return (self.direct_ownership_lower + self.direct_ownership_upper) / 2
-
-
-    # Expected shape of 'share' string is "dd-dd%" OR "dd%"
-    def parse_share(_self, share):
-        less_than_split = share.split('<')
-        if (len(less_than_split) > 1):
-            return [0, float(remove_percentage_sign(less_than_split[1]))]
-
-        interval_ends = share.split('-')
-
-        start = float(remove_percentage_sign(interval_ends[0]))
-        if len(interval_ends) == 1:
-            return [start, start]
-        elif len(interval_ends) == 2:
-            return [start, float(remove_percentage_sign(interval_ends[1]))]
     
 
     def serialize(self):
@@ -143,6 +128,7 @@ class NetworkPath:
 
     def append_arrow(self, ownership):
         if self.to_node() != ownership.source:
+            print(self.to_node(), ownership.source, self.path)
             raise ValueError('Ownership does not match source company')
         if ownership.target in self.path:
             self.close_as_loop()
@@ -199,8 +185,22 @@ def remove_percentage_sign(string):
     return string.split('%')[0]
 
 
-# --- PROCESSING ---
-#company_map = CompanyMap()
+# Expected shape of 'share' string is "[\d+]-[\d+]%" OR "[\d+]%" OR "<[\d+]%"
+def parse_share(share):
+        less_than_split = share.split('<')
+        if (len(less_than_split) > 1):
+            return [0, float(remove_percentage_sign(less_than_split[1]))]
+
+        interval_ends = share.split('-')
+
+        start = float(remove_percentage_sign(interval_ends[0]))
+        if len(interval_ends) == 1:
+            return [start, start]
+        elif len(interval_ends) == 2:
+            return [start, float(remove_percentage_sign(interval_ends[1]))]
+
+
+# --- EXTRACT INTO MODEL ---
 network_model = NetworkModel()
 focus_company_id = None
 
@@ -215,10 +215,13 @@ for company_ownership in network:
          focus_company_id = company_ownership['target']
 
 
-owned_by = [NetworkPath.start(ownership) for ownership in network_model.get_arrows_into(focus_company_id)]
+# --- TRAVERSE NETWORK ---
 
-active_paths = [path for path in owned_by if not path.is_closed()]
-inactive_paths = [path for path in owned_by if (path.is_closed() and not path.is_loop())]
+# $$ ------ ABOVE FOCUS COMPANY ------ $$
+owns = [NetworkPath.start(ownership) for ownership in network_model.get_arrows_into(focus_company_id)]
+
+active_paths = [path for path in owns if not path.is_closed()]
+inactive_paths = [path for path in owns if (path.is_closed() and not path.is_loop())]
 
 def travel_backwards(active_paths, inactive_paths):
     if len(active_paths) == 0:
@@ -239,15 +242,42 @@ def travel_backwards(active_paths, inactive_paths):
 
     return travel_backwards(new_active_paths, new_inactive_paths)
 
-empty, final_structure = travel_backwards(active_paths, inactive_paths)
+empty, owned_by_structure = travel_backwards(active_paths, inactive_paths)
 
-# --- WRITE TO FILE(S)
+with open('output/isOwnedBy.json', 'w', encoding='utf-8') as f:
+    json.dump([ownership.serialize() for ownership in owned_by_structure], f, ensure_ascii=False, indent=4)
 
-with open('isOwnedBy.json', 'w', encoding='utf-8') as f:
-    json.dump([ownership.serialize() for ownership in final_structure], f, ensure_ascii=False, indent=4)
 
-#with open('ownership.json', 'w', encoding='utf-8') as f:
-#    json.dump(ownership_map.serialize(), f, ensure_ascii=False, indent=4)
+# $$ ------ BELOW FOCUS COMPANY ------ $$
+
+owns = [NetworkPath.start(ownership) for ownership in network_model.get_arrows_out_of(focus_company_id)]
+
+ownership_active_paths = [path for path in owns if not path.is_closed()]
+ownership_inactive_paths = [path for path in owns if (path.is_closed() and not path.is_loop())]
+
+def travel_forwards(active_paths, inactive_paths):
+    if len(active_paths) == 0:
+        return [active_paths, inactive_paths]
+
+    new_inactive_paths = inactive_paths.copy()
+    new_active_paths = []
+    for active_path in active_paths:
+        if not active_path.is_loop():
+            new_inactive_paths.append(active_path)
+
+        arrows_mapping_out = network_model.get_arrows_out_of(active_path.to_node())
+        if (len(arrows_mapping_out) != 0):
+            for arrow in arrows_mapping_out:
+                extended_path = active_path.append_arrow(arrow)
+                if extended_path is not None and not extended_path.is_loop():
+                    new_active_paths.append(extended_path)
+
+    return travel_forwards(new_active_paths, new_inactive_paths)
+
+empty, owns_structure = travel_forwards(ownership_active_paths, ownership_inactive_paths)
+
+with open('output/owns.json', 'w', encoding='utf-8') as f:
+    json.dump([ownership.serialize() for ownership in owns_structure], f, ensure_ascii=False, indent=4)
 
 
 
