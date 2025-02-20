@@ -99,8 +99,6 @@ class NetworkPath:
     def average_weight(self):
         return (self.lower_weight + self.upper_weight) / 2
 
-    closed = False
-
     def __init__(self, path, lower_weight=1, upper_weight=1):
         self.path = path
         self.lower_weight = lower_weight
@@ -120,19 +118,12 @@ class NetworkPath:
     def to_node(self):
         return self.path[-1]
 
-    def close_as_loop(self):
-        self.lower_weight = 0
-        self.upper_weight = 0
-
     def append_arrow(self, ownership):
         if self.to_node() != ownership.source:
             print(self.to_node(), ownership.source, self.path)
             raise ValueError("Ownership does not match source company")
         if ownership.target in self.path:
-            self.close_as_loop()
-            return
-        if self.is_closed():
-            return
+            return None
 
         new_path = self.path + [ownership.target]
 
@@ -146,9 +137,7 @@ class NetworkPath:
         if self.from_node() != ownership.target:
             raise ValueError("Ownership does not match target company")
         if ownership.source in self.path:
-            return
-        if self.is_closed():
-            return
+            return None
 
         new_path = [ownership.source] + self.path
         return NetworkPath(
@@ -157,14 +146,8 @@ class NetworkPath:
             self.upper_weight * ownership.direct_ownership_upper,
         )
 
-    def close(self):
-        self.closed = True
-
-    def is_closed(self):
-        return self.is_loop() or self.closed
-
-    def is_loop(self):
-        return self.lower_weight == 0 and self.upper_weight == 0
+    def __str__(self):
+        return json.dumps(self.serialize())
 
     def serialize(self):
         return {
@@ -217,33 +200,29 @@ for company_ownership in network:
 owns = [
     NetworkPath.start(ownership)
     for ownership in network_model.get_arrows_into(focus_company_id)
+    if ownership.source != focus_company_id
 ]
 
-active_paths = [path for path in owns if not path.is_closed()]
-inactive_paths = [path for path in owns if (path.is_closed() and not path.is_loop())]
 
+def travel_backwards(newest_paths, all_paths):
+    new_paths = []
 
-def travel_backwards(active_paths, inactive_paths):
-    if len(active_paths) == 0:
-        return [active_paths, inactive_paths]
-
-    new_inactive_paths = inactive_paths.copy()
-    new_active_paths = []
-    for active_path in active_paths:
-        if not active_path.is_loop():
-            new_inactive_paths.append(active_path)
-
-        arrows_mapping_in = network_model.get_arrows_into(active_path.from_node())
+    for path in newest_paths:
+        arrows_mapping_in = network_model.get_arrows_into(path.from_node())
         if len(arrows_mapping_in) != 0:
             for arrow in arrows_mapping_in:
-                extended_path = active_path.prepend_arrow(arrow)
-                if extended_path is not None and not extended_path.is_loop():
-                    new_active_paths.append(extended_path)
+                extended_path = path.prepend_arrow(arrow)
+                if extended_path is not None:
+                    new_paths.append(extended_path)
 
-    return travel_backwards(new_active_paths, new_inactive_paths)
+    if len(new_paths) == 0:
+        return [], all_paths
+    else:
+        all_paths.extend(new_paths)
+        return travel_backwards(new_paths, all_paths)
 
 
-empty, owned_by_structure = travel_backwards(active_paths, inactive_paths)
+empty, owned_by_structure = travel_backwards(owns, owns)
 
 with open("output/isOwnedBy.json", "w", encoding="utf-8") as f:
     json.dump(
@@ -259,37 +238,29 @@ with open("output/isOwnedBy.json", "w", encoding="utf-8") as f:
 owns = [
     NetworkPath.start(ownership)
     for ownership in network_model.get_arrows_out_of(focus_company_id)
-]
-
-ownership_active_paths = [path for path in owns if not path.is_closed()]
-ownership_inactive_paths = [
-    path for path in owns if (path.is_closed() and not path.is_loop())
+    if ownership.target != focus_company_id
 ]
 
 
-def travel_forwards(active_paths, inactive_paths):
-    if len(active_paths) == 0:
-        return [active_paths, inactive_paths]
+def travel_forwards(newest_paths, all_paths):
+    new_paths = []
 
-    new_inactive_paths = inactive_paths.copy()
-    new_active_paths = []
-    for active_path in active_paths:
-        if not active_path.is_loop():
-            new_inactive_paths.append(active_path)
-
-        arrows_mapping_out = network_model.get_arrows_out_of(active_path.to_node())
+    for path in newest_paths:
+        arrows_mapping_out = network_model.get_arrows_out_of(path.to_node())
         if len(arrows_mapping_out) != 0:
             for arrow in arrows_mapping_out:
-                extended_path = active_path.append_arrow(arrow)
-                if extended_path is not None and not extended_path.is_loop():
-                    new_active_paths.append(extended_path)
+                extended_path = path.append_arrow(arrow)
+                if extended_path is not None:
+                    new_paths.append(extended_path)
 
-    return travel_forwards(new_active_paths, new_inactive_paths)
+    if len(new_paths) == 0:
+        return [], all_paths
+    else:
+        all_paths.extend(new_paths)
+        return travel_forwards(new_paths, all_paths)
 
 
-empty, owns_structure = travel_forwards(
-    ownership_active_paths, ownership_inactive_paths
-)
+empty, owns_structure = travel_forwards(owns, owns)
 
 with open("output/owns.json", "w", encoding="utf-8") as f:
     json.dump(
