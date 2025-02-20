@@ -37,9 +37,9 @@
     {
         "source": 38235036,
         "target": 29205272,
-        "real_lower_share": 0,
-        "real_average_share": 0.0,
-        "real_upper_share": 0
+        "real_lower_share": 0.15,
+        "real_average_share": 0.175,
+        "real_upper_share": 0.2
     },
     {
         "source": 34885079,
@@ -96,6 +96,13 @@
         "real_lower_share": 0.0,
         "real_average_share": 0.005000000000000001,
         "real_upper_share": 0.010000000000000002
+    },
+    {
+        "source": 38197746,
+        "target": 29205272,
+        "real_lower_share": 0.015,
+        "real_average_share": 0.0225,
+        "real_upper_share": 0.03
     },
     {
         "source": 24256146,
@@ -173,6 +180,13 @@
         "real_lower_share": 0.0,
         "real_average_share": 0.005000000000000001,
         "real_upper_share": 0.010000000000000002
+    },
+    {
+        "source": 4004036188,
+        "target": 29205272,
+        "real_lower_share": 0.015,
+        "real_average_share": 0.0225,
+        "real_upper_share": 0.03
     },
     {
         "source": 25020634,
